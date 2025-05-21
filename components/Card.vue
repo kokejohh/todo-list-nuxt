@@ -2,7 +2,7 @@
     <div class="card bg-base-200 w-48 h-48 shadow-sm">
         <div class="card-body">
             <div class="flex justify-between">
-            <span class="cursor-move text-xl" data-swapy-handle>☰</span>
+            <div class="cursor-move text-xl" data-swapy-handle>☰</div>
             <div class="space-x-4">
                 <span class="cursor-pointer">🖉</span>
                 <span class="cursor-pointer" @click="handleClick">X</span>
@@ -15,7 +15,7 @@
 
 <script setup>
     defineProps({
-        id: Number,
+        id: String,
         detail: String
     });
 

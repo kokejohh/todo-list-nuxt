@@ -54,6 +54,10 @@ onMounted(() => {
                 slotItemMap.value = event.newSlotItemMap.asArray;
             })
         });
+
+        swapy.value.onSwapEnd(() => {
+            swapy.value?.update();
+        })
     }
 });
 
