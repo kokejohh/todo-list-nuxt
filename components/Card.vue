@@ -3,15 +3,13 @@
         <div class="card-body">
             <div class="flex justify-between">
             <span class="drag-handle cursor-move">☰</span>
-            <span class="cursor-pointer">🖉</span>
-            <span class="cursor-pointer mr-2" @click="handleClick">X</span>
+            <div class="space-x-4">
+                <span class="cursor-pointer">🖉</span>
+                <span class="cursor-pointer" @click="handleClick">X</span>
             </div>
-            <h2 class="card-title">{{ detail }}</h2>
-            <div class="card-actions justify-end items-end">
-            <button class="btn btn-primary">Edit</button>
+            </div>
+            <h2 class="card-title text-sm">{{ detail }}</h2>
         </div>
-        </div>
-  
     </div>
 </template>
 

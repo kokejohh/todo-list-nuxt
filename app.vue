@@ -1,8 +1,10 @@
 <template>
   <div>
-    <Navbar />
-    <NuxtRouteAnnouncer />
-    <NuxtPage />
-    <!-- <Footer /> -->
+    <div class="h-screen">
+      <Navbar />
+      <NuxtRouteAnnouncer />
+      <NuxtPage />
+     </div>
+      <!-- <Footer /> -->
   </div>
 </template>

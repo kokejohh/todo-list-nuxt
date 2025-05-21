@@ -1,46 +1,68 @@
 <template>
-
     <fieldset class="fieldset bg-base-200 border-base-300 rounded-box max-w-lg border p-4 mx-auto">
         <legend class="fieldset-legend">Create Task</legend>
         <div class="join">
             <input v-model="text" @keyup.enter="addTask" type="text" class="input w-full join-item"
                 placeholder="What task you have to do ?" />
-            <button class="btn btn-primary join-item" @click="addTask">New</button>
+            <button class="btn btn-primary join-item" @click="addTask">Create</button>
         </div>
     </fieldset>
-
-    <div class="flex">
-            <div class="w-2/3">
-                <draggable v-model="tasks" item-key="id" :animation="200" handle=".drag-handle" group="task"
-                    drag-class="dragging" delay="50" class="bg-base-100 min-h-screen h-full flex flex-wrap content-start lg:max-w-4xl space-y-4 space-x-4 mt-4 pl-4 py-4 mx-auto">
-                    <template #item="{ element }">
-                        <Card :detail="element.detail" @removeTask="removeTask(element.id)" />
-                    </template>
-                </draggable>
+    <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 space-x-4 mt-4 py-4 mx-auto justify-center">
+        <div v-for="task in tasks" :key="task.id">
+            <div data-swapy-slot="{{ taask.id }}">
+                <div data-swapy-item="{{  task.id }}">
+                    <Card :detail="task.detail" />
+                </div>
             </div>
 
-
-            <div class="w-1/3">
-                <draggable v-model="tasksFinish" item-key="id" :animation="200" handle=".drag-handle" group="task"
-                    drag-class="dragging" delay="50" class="bg-base-300 min-h-screen h-full flex flex-wrap content-start lg:max-w-4xl space-y-4 space-x-4 mt-4 pl-4 py-4 mx-auto">
-                    <template #item="{ element }">
-                        <Card :detail="element.detail" />
-                    </template>
-                </draggable>
-            </div>
+        </div>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
-import draggable from 'vuedraggable';
+import { createSwapy, utils } from 'swapy';
+import type { SlotItemMapArray, Swapy } from 'swapy';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+
+
+type Task = {
+    id: Number,
+    detail: String
+}
+
+const swapy = ref<Swapy | null>(null);
+const container = ref<HTMLElement | null>();
+const tasks = ref<Task[]>([]);
+const slotItemMap = ref<SlotItemMapArray>([...utils.initSlotItemMap(tasks.value, 'id')]);
+
+watch(tasks, () => 
+    utils.dynamicSwapy(swapy.value, tasks.value, 'id', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), { deep: true }
+);
+
+const slottedItems = computed(() => utils.toSlottedItems(tasks.value, 'id', slotItemMap.value));
+
+onMounted(() => {
+    if (container.value) {
+        swapy.value = createSwapy(container.value, {
+            manualSwap: true
+        });
+
+        swapy.value.onSwap(event => {
+            console.log('swap', event);
+            requestAnimationFrame(() => {
+                slotItemMap.value = event.newSlotItemMap.asArray;
+            })
+        });
+    }
+});
+
+onUnmounted(() => {
+    swapy.value?.destroy();
+});
+
 import Card from '~/components/Card.vue';
 
-const tasks = ref([]);
-const tasksFinish = ref([{
-    id: 1,
-    detail: "fisi"
-}]);
 const text = ref('');
 
 function addTask() {
@@ -54,4 +76,3 @@ function removeTask(id) {
 }
 
 </script>
-
