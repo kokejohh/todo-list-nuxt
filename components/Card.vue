@@ -25,4 +25,8 @@
         emit('removeTask');
     }
 
+    onMounted(() => {
+        console.error("mounte card");
+    })
+
 </script>

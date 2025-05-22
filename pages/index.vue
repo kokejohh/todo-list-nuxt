@@ -11,7 +11,7 @@
 
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
-                <Card :detail="'' + item.detail" @remove-task="removeTask(item.id)"/>
+                <Card :detail="item.id + '' + item.detail" @remove-task="removeTask(item.id)"/>
             </div>
         </div>
 
@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { createSwapy, utils } from 'swapy';
 import type { SlotItemMapArray, Swapy } from 'swapy';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -35,7 +34,7 @@ const tasks = ref<Task[]>([]);
 const slotItemMap = ref<SlotItemMapArray>([...utils.initSlotItemMap(tasks.value, 'id')]);
 
 watch(tasks, () =>
-    utils.dynamicSwapy(swapy.value, tasks.value, 'id', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), { deep: true }
+    utils.dynamicSwapy(swapy.value, tasks.value, 'id', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), {deep: true}
 );
 
 const slottedItems = computed(() => utils.toSlottedItems(tasks.value, 'id', slotItemMap.value));
@@ -45,7 +44,6 @@ onMounted(() => {
         swapy.value = createSwapy(container.value, {
             manualSwap: true,
             autoScrollOnDrag: true,
-
         });
 
         swapy.value.onSwap(event => {
@@ -71,7 +69,7 @@ const text = ref('');
 
 function addTask() {
     if (text.value.trim() === '') return;
-    tasks.value.unshift({ id: (tasks.value.length + 1).toString(), detail: text.value });
+    tasks.value.push({ id: (tasks.value.length + 1).toString(), detail: text.value });
     text.value = '';
 }
 

@@ -10,6 +10,9 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@prisma/extension-accelerate": "^2.0.0",
+    "animate.css": "^4.1.1",
     "nuxt": "^3.17.3",
     "swapy": "^1.0.5",
     "tailwindcss": "^4.1.7",
