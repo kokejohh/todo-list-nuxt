@@ -10,7 +10,7 @@
     <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 space-x-4 mt-4 py-4 mx-auto justify-center">
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
-                <Card :task="item" @remove-task="removeTask(item.id)" v-model="selectedTask"/>
+                <Card :task="item" @delete-task="deleteTask(item.id.toString())" v-model="selectedTask"/>
             </div>
         </div>
     </div>
@@ -92,8 +92,11 @@ async function editTask(id: string) {
 
 }
 
-async function removeTask(id: any) {
-    tasks.value = tasks.value.filter(i => i.id !== id);
+async function deleteTask(id: string) {
+    const cf = confirm("Do you want to delete this task ?");
+    if (cf) {
+        tasks.value = tasks.value.filter(i => i.id !== id);
+    }
     // await $fetch('/api/tasks/' + id, {
     //     method: 'delete'
     // })
