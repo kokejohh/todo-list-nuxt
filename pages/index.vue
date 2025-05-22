@@ -8,14 +8,14 @@
         </div>
     </fieldset>
     <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 space-x-4 mt-4 py-4 mx-auto justify-center">
-
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
-                <Card :detail="item.id + '' + item.detail" @remove-task="removeTask(item.id)"/>
+                <Card :task="item" @remove-task="removeTask(item.id)" v-model="selectedTask"/>
             </div>
         </div>
-
     </div>
+
+    <Modal :task="selectedTask" />
 </template>
 
 <script setup lang="ts">
@@ -28,6 +28,7 @@ type Task = {
     detail: String
 }
 
+const selectedTask = ref<Record<string, any> | undefined>();
 const swapy = ref<Swapy | null>(null);
 const container = ref<HTMLElement | null>();
 const tasks = ref<Task[]>([]);
@@ -39,7 +40,13 @@ watch(tasks, () =>
 
 const slottedItems = computed(() => utils.toSlottedItems(tasks.value, 'id', slotItemMap.value));
 
-onMounted(() => {
+onMounted(async () => {
+    // const getAlltasks: Task[] = await $fetch('/api/tasks');
+    // getAlltasks.map(data => {
+    //     data.id = data.id + ''
+    // });
+    // tasks.value.push(...getAlltasks);
+
     if (container.value) {
         swapy.value = createSwapy(container.value, {
             manualSwap: true,
@@ -47,7 +54,6 @@ onMounted(() => {
         });
 
         swapy.value.onSwap(event => {
-            console.log('swap', event);
             requestAnimationFrame(() => {
                 slotItemMap.value = event.newSlotItemMap.asArray;
             })
@@ -67,14 +73,30 @@ import Card from '~/components/Card.vue';
 
 const text = ref('');
 
-function addTask() {
+async function addTask() {
     if (text.value.trim() === '') return;
+
+    // const createTask = await $fetch('/api/tasks', {
+    //     method: 'post',
+    //     body: {
+    //         detail: text.value,
+    //     }
+    // });
+
     tasks.value.push({ id: (tasks.value.length + 1).toString(), detail: text.value });
     text.value = '';
 }
 
-function removeTask(id: String) {
+async function editTask(id: string) {
+    const task = tasks.value.find(i => i.id === id);
+
+}
+
+async function removeTask(id: any) {
     tasks.value = tasks.value.filter(i => i.id !== id);
+    // await $fetch('/api/tasks/' + id, {
+    //     method: 'delete'
+    // })
 }
 
 </script>

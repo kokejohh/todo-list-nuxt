@@ -4,29 +4,35 @@
             <div class="flex justify-between">
             <div class="cursor-move text-xl" data-swapy-handle>☰</div>
             <div class="space-x-4">
-                <span class="cursor-pointer">🖉</span>
+                <span class="cursor-pointer" @click="openModal" >🖉</span>
                 <span class="cursor-pointer" @click="handleClick">X</span>
             </div>
             </div>
-            <h2 class="card-title text-sm">{{ detail }}</h2>
+            <h2 class="card-title text-sm">{{ task.detail }}</h2>
         </div>
     </div>
 </template>
 
 <script setup>
-    defineProps({
-        id: String,
-        detail: String
-    });
+    // const props = defineProps({
+    //     id: String,
+    //     detail: String,
+    // });
 
-    const emit = defineEmits(['removeTask']);
+    const props = defineProps({
+        task: Object,
+        modelValue: Object
+    })
+    // const props = defineProps(['task', 'modelValue'])
+
+    const emit = defineEmits(['removeTask', 'update:modelValue']);
 
     function handleClick() {
         emit('removeTask');
     }
 
-    onMounted(() => {
-        console.error("mounte card");
-    })
-
+    function openModal() {
+        emit('update:modelValue', props.task);
+        my_modal_1.showModal();
+    }
 </script>
