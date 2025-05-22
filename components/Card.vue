@@ -14,17 +14,10 @@
 </template>
 
 <script setup>
-    // const props = defineProps({
-    //     id: String,
-    //     detail: String,
-    // });
-
     const props = defineProps({
         task: Object,
         modelValue: Object
     })
-    // const props = defineProps(['task', 'modelValue'])
-
     const emit = defineEmits(['removeTask', 'update:modelValue']);
 
     function handleClick() {
