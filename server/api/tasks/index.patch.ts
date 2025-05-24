@@ -4,11 +4,11 @@ import { Tasks } from '~/generated/prisma-client';
 
 export default defineEventHandler(async event => {
     const body: Tasks = await readBody(event);
+    const { detail } = body;
 
-    console.log(body);
     const updateTask = await prisma.tasks.update({
         data: {
-            detail: body.detail
+            detail,
         },
         where: {
             id: body.id
