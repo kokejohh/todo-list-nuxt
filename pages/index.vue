@@ -8,7 +8,7 @@
         </div>
     </fieldset>
     <div ref="container"
-        class="flex flex-wrap flex-row-reverse lg:max-w-4xl space-y-4 mt-4 py-4 mx-auto justify-center">
+        class="flex flex-wrap lg:max-w-4xl space-y-4 pt-4 mx-auto justify-center">
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
                 <StickyNote :task="item" v-model="selectedTask" />
@@ -37,7 +37,27 @@ watch(() => tasks, () =>
     utils.dynamicSwapy(swapy.value, tasks.data, 'order', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), { deep: true }
 );
 
-const slottedItems = computed(() => utils.toSlottedItems(tasks.data, 'order', slotItemMap.value));
+
+const slottedItems = computed(() => {
+    const items = utils.toSlottedItems(tasks.data, 'order', slotItemMap.value);
+    debounceSlottedItems(items);
+    return items
+});
+
+const debounceSlottedItems = debounce((items) => {
+    items.forEach((item) => {
+        console.log(item.item.id, item.itemId, item.slotId)
+        $fetch('/api/tasks', {
+            method: 'patch',
+            body: {
+                id: item.item?.id,
+                order: parseInt(item.slotId)
+            },
+        });
+    });
+}, 1000);
+
+
 
 onMounted(async () => {
     try {
@@ -80,20 +100,23 @@ async function addTask() {
     const detail = text.value.trim();
     if (detail === '') return;
 
-    const order = (tasks.data.length + 1).toString();
+    const maxOrder = Math.max(...tasks.data.map(a => Number(a.detail)));
+    const order = (maxOrder + 1).toString();
     const newId: number = Date.now();
-    tasks.data.push({ id: newId, detail, order, status: 'DOING'});
+    tasks.data.push({ id: newId, detail, order, status: 'DOING' });
     text.value = '';
     try {
         const createTask = await $fetch('/api/tasks', {
             method: 'post',
             body: {
                 detail,
-                order: parseInt(order)
             }
         });
         const index = tasks.data.findIndex(task => task.id === newId);
-        if (index !== -1) tasks.data[index].id = createTask.id;
+        if (index !== -1) {
+            tasks.data[index].id = createTask.id;
+            tasks.data[index].order = String(createTask.order);
+        }
     } catch (err) {
         tasks.data = tasks.data.filter((task: Task) => task.id !== newId);
         alert('Create failed!');
