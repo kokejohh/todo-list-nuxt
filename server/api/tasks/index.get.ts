@@ -1,6 +1,6 @@
 // import prisma from '@/server/lib/prisma';
 
-import { PrismaClient } from '~/prisma/generated/prisma-client';
+// import { PrismaClient } from '~/prisma/generated/prisma-client';
 // import { withAccelerate } from '@prisma/extension-accelerate';
 
 // const globalForPrisma = globalThis as unknown as {
@@ -8,7 +8,7 @@ import { PrismaClient } from '~/prisma/generated/prisma-client';
 // }
 
 //let prisma;// = globalForPrisma.prisma ?? new PrismaClient().$extends(withAccelerate())
-const prisma = new PrismaClient();//.$extends(withAccelerate());
+// const prisma = new PrismaClient();//.$extends(withAccelerate());
 
 
 export default defineEventHandler(async event => {
