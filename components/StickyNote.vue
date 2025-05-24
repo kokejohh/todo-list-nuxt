@@ -1,6 +1,6 @@
 <template>
-    <div class="card bg-base-200 w-48 h-48 shadow-sm mx-2">
-        <div class="card-body pt-4 ">
+    <div class="card bg-base-200 w-48 h-52 shadow-sm mx-2">
+        <div class="card-body pb-0 pt-4 ">
             <div class="flex justify-between">
                 <div class="cursor-move text-xl" data-swapy-handle>☰</div>
                 <div class="space-x-4">
@@ -9,6 +9,9 @@
                 </div>
             </div>
             <h2 class="card-title text-sm wrap-anywhere line-clamp-6">{{ task!.detail }}</h2>
+        </div>
+        <div class="card-action flex justify-end m-2">
+            <input v-model="taskStatus" class="checkbox checkbox-sm" name="isDone" type="checkbox">
         </div>
     </div>
 </template>
@@ -23,9 +26,11 @@ const modal = modalStore();
 const props = defineProps({
     task: Object,
     modelValue: Object
-})
+});
 
 const emit = defineEmits(['update:modelValue']);
+
+const taskStatus = ref<boolean>(false);
 
 async function deleteTask(id: number) {
     const cf = confirm("Do you want to delete this task ?");

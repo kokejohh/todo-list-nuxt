@@ -27,7 +27,6 @@ const props = defineProps({
 });
 
 const modalRef = ref<HTMLDialogElement | null>(null);
-const isModalOpen = ref<boolean>(false);
 const detail = ref<string>('');
 
 onMounted(() => {
@@ -35,15 +34,12 @@ onMounted(() => {
   const dialog = modal.modalEdit;
   if (dialog) {
     const observer = new MutationObserver(() => {
-      isModalOpen.value = dialog.open;
+      if (dialog.open) {
+        detail.value = props.task?.detail;
+      }
     });
-    observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+    observer.observe(dialog, { attributes: true, attributeFilter: ['open']});
   }
-  watch(isModalOpen, () => {
-    if (isModalOpen.value) {
-      detail.value = props.task?.detail;
-    }
-  });
 });
 
 async function saveTask(id: number) {

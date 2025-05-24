@@ -40,12 +40,16 @@ watch(() => tasks, () =>
 const slottedItems = computed(() => utils.toSlottedItems(tasks.data, 'order', slotItemMap.value));
 
 onMounted(async () => {
-    const getAlltasks = await $fetch('/api/tasks');
-    const allTasks = getAlltasks.map(data => ({
-        ...data,
-        order: String(data.order)
-    }));
-    tasks.data = [...allTasks];
+    try {
+        const getAlltasks = await $fetch('/api/tasks');
+        const allTasks = getAlltasks.map(data => ({
+            ...data,
+            order: String(data.order)
+        }));
+        tasks.data = [...allTasks];
+    } catch (err) {
+        alert('Database down! but you can still use it.');
+    }
 
     if (container.value) {
         swapy.value = createSwapy(container.value, {
@@ -78,7 +82,7 @@ async function addTask() {
 
     const order = (tasks.data.length + 1).toString();
     const newId: number = Date.now();
-    tasks.data.push({ id: newId, detail, order });
+    tasks.data.push({ id: newId, detail, order, status: 'DOING'});
     text.value = '';
     try {
         const createTask = await $fetch('/api/tasks', {
