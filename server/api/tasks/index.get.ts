@@ -7,11 +7,11 @@ import { PrismaClient } from '~/prisma/generated/prisma-client';
 //     prisma: ReturnType<typeof PrismaClient.prototype.$extends> | undefined 
 // }
 
-//let prisma;// = globalForPrisma.prisma ?? new PrismaClient().$extends(withAccelerate())
-// const prisma = new PrismaClient();//.$extends(withAccelerate());
+let prisma;// = globalForPrisma.prisma ?? new PrismaClient().$extends(withAccelerate())
 
 
 export default defineEventHandler(async event => {
+    const prisma = new PrismaClient();//.$extends(withAccelerate());
     return 1;
     // const tasks = await prisma.tasks.findMany({
     //     orderBy: {
