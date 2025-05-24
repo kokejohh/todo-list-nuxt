@@ -8,7 +8,7 @@
                     <span class="cursor-pointer hover:text-red-500" @click="deleteTask(task!.id)">X</span>
                 </div>
             </div>
-            <h2 class="card-title text-sm wrap-anywhere line-clamp-6">{{ task!.detail }}</h2>
+            <h2 :class="taskStatus ? 'line-through' : ''" class="card-title text-sm wrap-anywhere line-clamp-6">{{ task!.detail }}</h2>
         </div>
         <div class="card-action flex justify-end m-2">
             <input v-model="taskStatus" class="checkbox checkbox-sm" name="isDone" type="checkbox">
@@ -30,18 +30,35 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-const taskStatus = ref<boolean>(false);
+let index = tasks.data.findIndex(task => task.id === props.task!.id)
+const taskStatus = ref(tasks.data[index].status === 'DONE');
+
+watch(taskStatus, async (isDone) => {
+    index = tasks.data.findIndex(task => task.id === props.task!.id)
+    tasks.data[index].status = isDone ? 'DONE' : 'DOING';
+    try {
+        await $fetch('/api/tasks/', {
+            method: 'patch',
+            body: {
+                id: tasks.data[index].id,
+                status: isDone ? 'DONE' : 'DOING'
+            }
+        });
+    } catch (err) {
+        alert('Set Status Failed');
+    }
+});
 
 async function deleteTask(id: number) {
     const cf = confirm("Do you want to delete this task ?");
 
     try {
         if (cf) {
-            await $fetch('/api/tasks/' + id, {
-                method: 'delete'
-            });
             tasks.data = tasks.data.filter((task: Task) => {
                 return task.id !== id
+            });
+            await $fetch('/api/tasks/' + id, {
+                method: 'delete'
             });
         }
     } catch (err) {
