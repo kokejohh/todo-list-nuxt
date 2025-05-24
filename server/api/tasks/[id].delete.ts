@@ -1,5 +1,5 @@
 import prisma from "@/server/lib/prisma";
-import { Tasks } from "~/generated/prisma-client";
+import { Tasks } from "@/app/generated/prisma-client";
 
 export default defineEventHandler(async event => {
     const getRouter = getRouterParams(event);
