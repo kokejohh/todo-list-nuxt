@@ -1,7 +1,4 @@
-import { PrismaClient } from '@/app/generated/prisma-client';
-import { withAccelerate } from '@prisma/extension-accelerate'
-
-const prisma = new PrismaClient().$extends(withAccelerate())
+import prisma from '@/server/lib/prisma';
 
 export default defineEventHandler(async (event) => {
   const users = await prisma.user.findMany();
