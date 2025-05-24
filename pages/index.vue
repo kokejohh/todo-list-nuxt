@@ -33,12 +33,6 @@ const swapy = ref<Swapy | null>(null);
 const container = ref<HTMLElement | null>();
 const slotItemMap = ref<SlotItemMapArray>([...utils.initSlotItemMap(tasks.data, 'order')]);
 
-type Task = {
-    id: Number,
-    detail: String,
-    order: String
-}
-
 watch(() => tasks, () =>
     utils.dynamicSwapy(swapy.value, tasks.data, 'order', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), { deep: true }
 );
@@ -46,11 +40,12 @@ watch(() => tasks, () =>
 const slottedItems = computed(() => utils.toSlottedItems(tasks.data, 'order', slotItemMap.value));
 
 onMounted(async () => {
-    // const getAlltasks = await $fetch('/api/tasks');
-    // getAlltasks.map(data => {
-    //     data.order = data.order + ''
-    // });
-    // tasks.data.push(...getAlltasks);
+    const getAlltasks = await $fetch('/api/tasks');
+    const allTasks = getAlltasks.map(data => ({
+        ...data,
+        order: String(data.order)
+    }));
+    tasks.data = [...allTasks];
 
     if (container.value) {
         swapy.value = createSwapy(container.value, {
@@ -86,15 +81,15 @@ async function addTask() {
     tasks.data.push({ id: newId, detail, order });
     text.value = '';
     try {
-        // const createTask = await $fetch('/api/tasks', {
-        //     method: 'post',
-        //     body: {
-        //         detail,
-        //         order: parseInt(order)
-        //     }
-        // });
-        // const index = tasks.data.findIndex(task => task.id === newId);
-        // if (index !== -1) tasks.data[index].id = createTask.id.toString();
+        const createTask = await $fetch('/api/tasks', {
+            method: 'post',
+            body: {
+                detail,
+                order: parseInt(order)
+            }
+        });
+        const index = tasks.data.findIndex(task => task.id === newId);
+        if (index !== -1) tasks.data[index].id = createTask.id;
     } catch (err) {
         tasks.data = tasks.data.filter((task: Task) => task.id !== newId);
         alert('Create failed!');

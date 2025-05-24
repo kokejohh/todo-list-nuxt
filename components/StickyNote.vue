@@ -17,8 +17,6 @@
 
 import { tasksStore, modalStore } from '@/stores/todo';
 
-// import type { Task } from '@/type';
-
 const tasks = tasksStore();
 const modal = modalStore();
 
@@ -34,9 +32,9 @@ async function deleteTask(id: number) {
 
     try {
         if (cf) {
-            // await $fetch('/api/tasks/' + id, {
-            //     method: 'delete'
-            // })
+            await $fetch('/api/tasks/' + id, {
+                method: 'delete'
+            });
             tasks.data = tasks.data.filter((task: Task) => {
                 return task.id !== id
             });

@@ -46,31 +46,19 @@ onMounted(() => {
   });
 });
 
-async function sleep(ms: number) {
-
-  // return new Promise((res, rej) => {
-    // setTimeout(() => res(1), ms)
-    // setTimeout(() => {
-    //   setTimeout(() => {
-    //     alert(2000)
-    //   }, 1000);
-    //   alert(1000);
-    // }, 1000);
-  // });
-}
 async function saveTask(id: number) {
   const index = tasks.data.findIndex((task: Task) => task.id === id)
   const tmpDetail = tasks.data[index].detail;
   tasks.data[index].detail = detail.value
 
   try {
-    // await $fetch('/api/tasks/', {
-    //   method: 'patch',
-    //   body: {
-    //     id,
-    //     detail: detail.value
-    //   }
-    // });
+    await $fetch('/api/tasks/', {
+      method: 'patch',
+      body: {
+        id,
+        detail: detail.value
+      }
+    });
   } catch (err) {
     alert('Edit Failed');
     tasks.data[index].detail = tmpDetail;
