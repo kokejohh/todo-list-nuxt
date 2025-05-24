@@ -57,8 +57,6 @@ const debounceSlottedItems = debounce((items) => {
     });
 }, 1000);
 
-
-
 onMounted(async () => {
     try {
         const getAlltasks = await $fetch('/api/tasks');
@@ -68,6 +66,7 @@ onMounted(async () => {
         }));
         tasks.data = [...allTasks];
     } catch (err) {
+        console.error('koke log', err);
         alert('Database down! but you can still use it.');
     }
 
