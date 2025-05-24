@@ -8,7 +8,7 @@
       <div class="modal-action">
         <form method="dialog">
           <button class="btn">Close</button>
-          <button class="btn btn-primary">Save</button>
+          <button class="btn btn-primary" @click="saveTask(task?.id)">Save</button>
         </form>
       </div>
     </div>
@@ -16,6 +16,11 @@
 </template>
 
 <script setup lang="ts">
+
+import { tasksStore, modalStore } from '@/stores/todo';
+
+const tasks = tasksStore();
+const modal = modalStore();
 
 const props = defineProps({
   task: Object
@@ -26,7 +31,8 @@ const isModalOpen = ref<boolean>(false);
 const detail = ref<string>('');
 
 onMounted(() => {
-  const dialog = modalRef.value;
+  modal.modalEdit = modalRef.value;
+  const dialog = modal.modalEdit;
   if (dialog) {
     const observer = new MutationObserver(() => {
       isModalOpen.value = dialog.open;
@@ -37,6 +43,37 @@ onMounted(() => {
     if (isModalOpen.value) {
       detail.value = props.task?.detail;
     }
-  })
+  });
 });
+
+async function sleep(ms: number) {
+
+  // return new Promise((res, rej) => {
+    // setTimeout(() => res(1), ms)
+    // setTimeout(() => {
+    //   setTimeout(() => {
+    //     alert(2000)
+    //   }, 1000);
+    //   alert(1000);
+    // }, 1000);
+  // });
+}
+async function saveTask(id: number) {
+  const index = tasks.data.findIndex((task: Task) => task.id === id)
+  const tmpDetail = tasks.data[index].detail;
+  tasks.data[index].detail = detail.value
+
+  try {
+    // await $fetch('/api/tasks/', {
+    //   method: 'patch',
+    //   body: {
+    //     id,
+    //     detail: detail.value
+    //   }
+    // });
+  } catch (err) {
+    alert('Edit Failed');
+    tasks.data[index].detail = tmpDetail;
+  }
+}
 </script>
