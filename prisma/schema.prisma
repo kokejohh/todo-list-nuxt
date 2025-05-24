@@ -25,7 +25,7 @@ model User {
 model Tasks {
   id  Int @id @default(autoincrement())
   detail String
-  order Int @unique
+  order Int
   status statusTask @default(DOING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
