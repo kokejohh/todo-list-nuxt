@@ -16,6 +16,7 @@
     "animate.css": "^4.1.1",
     "nuxt": "^3.17.3",
     "pinia": "^3.0.2",
+    "prisma": "^6.8.2",
     "swapy": "^1.0.5",
     "sweetalert2": "^11.21.2",
     "tailwindcss": "^4.1.7",
@@ -24,7 +25,6 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.7",
-    "daisyui": "^5.0.35",
-    "prisma": "^6.8.2"
+    "daisyui": "^5.0.35"
   }
 }
