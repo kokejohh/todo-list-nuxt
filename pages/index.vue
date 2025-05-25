@@ -37,7 +37,6 @@ watch(() => tasks, () =>
     utils.dynamicSwapy(swapy.value, tasks.data, 'order', slotItemMap.value, (value: SlotItemMapArray) => slotItemMap.value = value), { deep: true }
 );
 
-
 const slottedItems = computed(() => {
     const items = utils.toSlottedItems(tasks.data, 'order', slotItemMap.value);
     debounceSlottedItems(items);
@@ -46,7 +45,6 @@ const slottedItems = computed(() => {
 
 const debounceSlottedItems = debounce((items) => {
     items.forEach((item) => {
-        console.log(item.item.id, item.itemId, item.slotId)
         $fetch('/api/tasks', {
             method: 'patch',
             body: {
@@ -56,7 +54,6 @@ const debounceSlottedItems = debounce((items) => {
         });
     });
 }, 1000);
-
 
 
 onMounted(async () => {
@@ -69,6 +66,7 @@ onMounted(async () => {
         tasks.data = [...allTasks];
     } catch (err) {
         alert('Database down! but you can still use it.');
+        console.error(err);
     }
 
     if (container.value) {
