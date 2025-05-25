@@ -1,6 +1,5 @@
 import prisma from '@/server/lib/prisma';
-import { Tasks } from '~/generated/prisma-client';
-
+import { Tasks } from '@/prisma/generated/prisma-client';
 
 export default defineEventHandler(async event => {
     const body: Partial<Tasks> = await readBody(event);
@@ -15,7 +14,7 @@ export default defineEventHandler(async event => {
     const updateTask = await prisma.tasks.update({
         data,
         where: {
-            id
+            id: id
         }
     });
 
