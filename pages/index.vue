@@ -7,8 +7,7 @@
             <button class="btn btn-primary join-item" @click="addTask">Create</button>
         </div>
     </fieldset>
-    <div ref="container"
-        class="flex flex-wrap lg:max-w-4xl space-y-4 pt-4 mx-auto justify-center">
+    <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 pt-4 mx-auto justify-center">
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
                 <StickyNote :task="item" v-model="selectedTask" />
@@ -25,6 +24,8 @@ import { tasksStore } from '@/stores/todo';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { createSwapy, utils } from 'swapy';
 import type { SlotItemMapArray, Swapy } from 'swapy';
+
+import Swal from 'sweetalert2';
 
 const tasks = tasksStore();
 
@@ -98,11 +99,13 @@ async function addTask() {
     const detail = text.value.trim();
     if (detail === '') return;
 
+    Toast.fire({
+        icon: 'info',
+        title: 'creating task'
+    })
     const maxOrder = Math.max(...tasks.data.map(a => Number(a.detail)));
     const order = (maxOrder + 1).toString();
     const newId: number = Date.now();
-    tasks.data.push({ id: newId, detail, order, status: 'DOING' });
-    text.value = '';
     try {
         const createTask = await $fetch('/api/tasks', {
             method: 'post',
@@ -110,14 +113,23 @@ async function addTask() {
                 detail,
             }
         });
+        tasks.data.push({ id: newId, detail, order, status: 'DOING' });
+        text.value = '';
         const index = tasks.data.findIndex(task => task.id === newId);
         if (index !== -1) {
             tasks.data[index].id = createTask.id;
             tasks.data[index].order = String(createTask.order);
         }
+        Toast.fire({
+            icon: "success",
+            title: "created succesfully"
+        });
     } catch (err) {
         tasks.data = tasks.data.filter((task: Task) => task.id !== newId);
-        alert('Create failed!');
+        Toast.fire({
+            icon: "error",
+            title: "failed to create"
+        });
     }
 }
 
