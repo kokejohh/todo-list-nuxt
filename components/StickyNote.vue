@@ -8,7 +8,8 @@
                     <span class="cursor-pointer hover:text-red-500" @click="deleteTask(task!.id)">X</span>
                 </div>
             </div>
-            <h2 :class="taskStatus ? 'line-through' : ''" class="card-title text-sm wrap-anywhere line-clamp-6">{{ task!.detail }}</h2>
+            <h2 :class="taskStatus ? 'line-through' : ''" class="card-title text-sm wrap-anywhere line-clamp-6">{{
+                task!.detail }}</h2>
         </div>
         <div class="card-action flex justify-end m-2">
             <input v-model="taskStatus" class="checkbox checkbox-sm" name="isDone" type="checkbox">
@@ -19,6 +20,8 @@
 <script setup lang="ts">
 
 import { tasksStore, modalStore } from '@/stores/todo';
+
+import Swal from 'sweetalert2';
 
 const tasks = tasksStore();
 const modal = modalStore();
@@ -50,20 +53,41 @@ watch(taskStatus, async (isDone) => {
 });
 
 async function deleteTask(id: number) {
-    const cf = confirm("Do you want to delete this task ?");
 
-    try {
-        if (cf) {
+
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        customClass: {
+            popup: "bg-base-200"
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            Toast.fire({
+                icon: "info",
+                title: "deleting task"
+            });
             tasks.data = tasks.data.filter((task: Task) => {
                 return task.id !== id
             });
             await $fetch('/api/tasks/' + id, {
                 method: 'delete'
             });
+
+            Toast.fire({
+                icon: "success",
+                title: "deleted succesfully"
+            });
         }
-    } catch (err) {
-        alert('Delete faild!');
-    }
+
+
+    });
 }
 
 function openModal() {
