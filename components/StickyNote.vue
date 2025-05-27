@@ -2,29 +2,30 @@
     <div class="card bg-base-200 w-48 h-52 shadow-sm mx-2">
         <div class="card-body pb-0 pt-4 ">
             <div class="flex justify-between">
-                <div class="cursor-move text-xl" data-swapy-handle>☰</div>
-                <div class="space-x-4">
-                    <span class="cursor-pointer hover:text-green-500" @click="openModal">🖉</span>
-                    <span class="cursor-pointer hover:text-red-500" @click="deleteTask(task!.id)">X</span>
+                <button class="btn btn-xs btn-ghost cursor-move text-xl" :disabled="onProcess.is" data-swapy-handle>☰</button>
+                <div class="join">
+                    <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is" @click="openModal">🖉</button>
+                    <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is" @click="deleteTask(task!.id)">X</button>
                 </div>
             </div>
             <h2 :class="taskStatus ? 'line-through' : ''" class="card-title text-sm wrap-anywhere line-clamp-6">{{
                 task!.detail }}</h2>
         </div>
         <div class="card-action flex justify-end m-2">
-            <input v-model="taskStatus" class="checkbox checkbox-sm" name="isDone" type="checkbox">
+            <input v-model="taskStatus" class="checkbox checkbox-sm" :disabled="onProcess.is" name="isDone" type="checkbox">
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 
-import { tasksStore, modalStore } from '@/stores/todo';
+import { tasksStore, modalStore, onProcessStore } from '@/stores/todo';
 
 import Swal from 'sweetalert2';
 
 const tasks = tasksStore();
 const modal = modalStore();
+const onProcess = onProcessStore();
 
 const props = defineProps({
     task: Object,
@@ -53,9 +54,8 @@ watch(taskStatus, async (isDone) => {
 });
 
 async function deleteTask(id: number) {
-
-
-
+    onProcess.is = true;
+    alert(onProcess.is);
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -64,8 +64,9 @@ async function deleteTask(id: number) {
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, delete it!",
+        theme: "dark",
         customClass: {
-            popup: "bg-base-200"
+            popup: "!bg-base-200"
         }
     }).then(async (result) => {
         if (result.isConfirmed) {
@@ -73,21 +74,21 @@ async function deleteTask(id: number) {
                 icon: "info",
                 title: "deleting task"
             });
-            tasks.data = tasks.data.filter((task: Task) => {
-                return task.id !== id
-            });
             await $fetch('/api/tasks/' + id, {
                 method: 'delete'
             });
-
+            tasks.data = tasks.data.filter((task: Task) => {
+                return task.id !== id
+            });
             Toast.fire({
                 icon: "success",
-                title: "deleted succesfully"
+                title: "deleted succesfully",
+                timer: 3000
             });
         }
-
-
+        onProcess.is = false;
     });
+
 }
 
 function openModal() {

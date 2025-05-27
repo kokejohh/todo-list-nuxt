@@ -2,12 +2,13 @@
     <fieldset class="fieldset bg-base-200 border-base-300 rounded-box max-w-lg border p-4 mx-auto">
         <legend class="fieldset-legend">Create Task</legend>
         <div class="join">
-            <input v-model="text" @keyup.enter="addTask" type="text" class="input w-full join-item"
+            <input v-model="text" @keyup.enter="addTask" :disabled="onProcess.is" type="text" class="input w-full join-item"
                 placeholder="What task you have to do ?" />
-            <button class="btn btn-primary join-item" @click="addTask">Create</button>
+            <button class="btn btn-primary join-item" :disabled="onProcess.is" @click="addTask">Create</button>
         </div>
     </fieldset>
     <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 pt-4 mx-auto justify-center">
+        <span v-if="onProcess.is && tasks.data.length === 0" class="loading loading-bars loading-xl"></span>
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
                 <StickyNote :task="item" v-model="selectedTask" />
@@ -19,7 +20,7 @@
 
 <script setup lang="ts">
 
-import { tasksStore } from '@/stores/todo';
+import { tasksStore, onProcessStore } from '@/stores/todo';
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { createSwapy, utils } from 'swapy';
@@ -28,6 +29,8 @@ import type { SlotItemMapArray, Swapy } from 'swapy';
 import Swal from 'sweetalert2';
 
 const tasks = tasksStore();
+const onProcess = onProcessStore();
+onProcess.is = true;
 
 const selectedTask = ref<Record<string, any> | undefined>();
 const swapy = ref<Swapy | null>(null);
@@ -66,19 +69,22 @@ onMounted(async () => {
         }));
         tasks.data = [...allTasks];
     } catch (err) {
-        alert('Database down! but you can still use it.');
+        Toast.fire({
+            icon: "error",
+            title: "database down"
+        })
         console.error(err);
+    } finally {
+        onProcess.is = false;
     }
 
     if (container.value) {
         swapy.value = createSwapy(container.value, {
             manualSwap: true,
-            autoScrollOnDrag: true,
         });
 
         swapy.value.onSwap(event => {
             requestAnimationFrame(() => {
-                console.log('request animation');
                 slotItemMap.value = event.newSlotItemMap.asArray;
             })
         });
@@ -93,44 +99,44 @@ onUnmounted(() => {
     swapy.value?.destroy();
 });
 
-const text = ref('');
+const text = ref<string>('');
 
 async function addTask() {
     const detail = text.value.trim();
     if (detail === '') return;
 
+    onProcess.is = true;
     Toast.fire({
         icon: 'info',
         title: 'creating task'
     })
-    const maxOrder = Math.max(...tasks.data.map(a => Number(a.detail)));
-    const order = (maxOrder + 1).toString();
-    const newId: number = Date.now();
     try {
-        const createTask = await $fetch('/api/tasks', {
+        const newTask = await $fetch('/api/tasks', {
             method: 'post',
             body: {
                 detail,
             }
         });
-        tasks.data.push({ id: newId, detail, order, status: 'DOING' });
         text.value = '';
-        const index = tasks.data.findIndex(task => task.id === newId);
-        if (index !== -1) {
-            tasks.data[index].id = createTask.id;
-            tasks.data[index].order = String(createTask.order);
-        }
+        tasks.data.push({
+            id: newTask.id,
+            detail: newTask.detail,
+            order: String(newTask.order),
+            status: 'DOING'
+        });
         Toast.fire({
             icon: "success",
-            title: "created succesfully"
+            title: "created succesfully",
+            timer: 3000
         });
     } catch (err) {
-        tasks.data = tasks.data.filter((task: Task) => task.id !== newId);
         Toast.fire({
             icon: "error",
-            title: "failed to create"
+            title: "failed to create",
+            timer: 3000
         });
+    } finally {
+        onProcess.is = false;
     }
 }
-
 </script>

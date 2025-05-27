@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
 
+const onProcessStore = defineStore('onProcess', () => {
+    const is = ref<boolean>(true);
+
+    return { is }
+});
 const tasksStore = defineStore('task', () => {
     const data = ref<Task[]>([]);
 
@@ -13,6 +18,7 @@ const modalStore = defineStore('modal', () => {
 });
 
 export {
+    onProcessStore,
     tasksStore,
     modalStore
 }

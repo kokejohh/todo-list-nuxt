@@ -4,7 +4,11 @@ export const Toast = Swal.mixin({
     toast: true,
     position: "top-end",
     showConfirmButton: false,
-    timer: 3000,
+    theme: "dark",
+    customClass: {
+        popup: "!bg-base-200"
+    }
+    // timer: 3000,
     // timerProgressBar: true,
     // didOpen: (toast) => {
     //     toast.onmouseenter = Swal.stopTimer;
