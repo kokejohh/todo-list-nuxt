@@ -1,14 +1,18 @@
 <template>
-    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box max-w-lg border p-4 mx-auto">
-        <legend class="fieldset-legend">Create Task</legend>
-        <div class="join">
-            <input v-model="text" @keyup.enter="addTask" :disabled="onProcess.is" type="text" class="input w-full join-item"
-                placeholder="What task you have to do ?" />
-            <button class="btn btn-primary join-item" :disabled="onProcess.is" @click="addTask">Create</button>
-        </div>
-    </fieldset>
-    <div ref="container" class="flex flex-wrap lg:max-w-4xl space-y-4 pt-4 mx-auto justify-center">
-        <span v-if="onProcess.is && tasks.data.length === 0" class="loading loading-bars loading-xl"></span>
+    <ClientOnly>
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box max-w-lg border p-4 mx-auto">
+            <legend class="fieldset-legend">Create Task</legend>
+            <div class="join">
+                <input v-model="text" @keyup.enter="addTask" :disabled="onProcess.is" type="text"
+                    class="input w-full join-item" placeholder="What task you have to do ?" />
+                <button class="btn btn-primary join-item" :disabled="onProcess.is" @click="addTask">Create</button>
+            </div>
+        </fieldset>
+    </ClientOnly>
+    <div class="h-10 py-4">
+        <span v-show="onProcess.is" class="loading loading-bars loading-xl block mx-auto"></span>
+    </div>
+    <div ref="container" class="flex flex-wrap max-w-4xl space-y-4 pt-4 justify-center mx-auto">
         <div v-for="{ slotId, itemId, item } in slottedItems" :key="slotId" :data-swapy-slot="slotId">
             <div v-if="item" :data-swapy-item="itemId" :key="itemId">
                 <StickyNote :task="item" v-model="selectedTask" />
@@ -26,11 +30,8 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { createSwapy, utils } from 'swapy';
 import type { SlotItemMapArray, Swapy } from 'swapy';
 
-import Swal from 'sweetalert2';
-
 const tasks = tasksStore();
 const onProcess = onProcessStore();
-onProcess.is = true;
 
 const selectedTask = ref<Record<string, any> | undefined>();
 const swapy = ref<Swapy | null>(null);
@@ -59,8 +60,8 @@ const debounceSlottedItems = debounce((items) => {
     });
 }, 1000);
 
-
 onMounted(async () => {
+    onProcess.is = true;
     try {
         const getAlltasks = await $fetch('/api/tasks');
         const allTasks = getAlltasks.map(data => ({
@@ -81,6 +82,7 @@ onMounted(async () => {
     if (container.value) {
         swapy.value = createSwapy(container.value, {
             manualSwap: true,
+            autoScrollOnDrag: true
         });
 
         swapy.value.onSwap(event => {

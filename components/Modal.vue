@@ -17,10 +17,11 @@
 
 <script setup lang="ts">
 
-import { tasksStore, modalStore } from '@/stores/todo';
+import { tasksStore, modalStore, onProcessStore } from '@/stores/todo';
 
 const tasks = tasksStore();
 const modal = modalStore();
+const onProcess = onProcessStore();
 
 const props = defineProps({
   task: Object
@@ -35,7 +36,7 @@ onMounted(() => {
   if (dialog) {
     const observer = new MutationObserver(() => {
       if (dialog.open) {
-        detail.value = props.task?.detail;
+        detail.value = props.task?.detail.trim();
       }
     });
     observer.observe(dialog, { attributes: true, attributeFilter: ['open']});
@@ -43,21 +44,37 @@ onMounted(() => {
 });
 
 async function saveTask(id: number) {
-  const index = tasks.data.findIndex((task: Task) => task.id === id)
-  const tmpDetail = tasks.data[index].detail;
-  tasks.data[index].detail = detail.value
+  const detailTxt = detail.value.trim();
+  if (detailTxt === '') return;
 
+  onProcess.is = true;
+  Toast.fire({
+    icon: 'info',
+    title: 'editing'
+  })
   try {
     await $fetch('/api/tasks/', {
       method: 'patch',
       body: {
         id,
-        detail: detail.value
+        detail: detailTxt
       }
     });
+    const index = tasks.data.findIndex((task: Task) => task.id === id);
+    tasks.data[index].detail = detailTxt;
+    Toast.fire({
+      icon: 'success',
+      title: 'edited successfully',
+      timer: 3000
+    })
   } catch (err) {
-    alert('Edit Failed');
-    tasks.data[index].detail = tmpDetail;
+    Toast.fire({
+      icon: 'error',
+      title: 'failed to edit',
+      timer: 3000
+    });
+  } finally {
+    onProcess.is = false;
   }
 }
 </script>

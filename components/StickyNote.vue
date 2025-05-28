@@ -1,14 +1,14 @@
 <template>
-    <div class="card bg-base-200 w-48 h-52 shadow-sm mx-2">
+    <div :class="{'!opacity-80': taskStatus}" class="card bg-base-200 opacity-90 w-48 h-52 shadow-sm mx-2">
         <div class="card-body pb-0 pt-4 ">
             <div class="flex justify-between">
                 <button class="btn btn-xs btn-ghost cursor-move text-xl" :disabled="onProcess.is" data-swapy-handle>☰</button>
                 <div class="join">
-                    <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is" @click="openModal">🖉</button>
+                    <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is || taskStatus" @click="openModal">🖉</button>
                     <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is" @click="deleteTask(task!.id)">X</button>
                 </div>
             </div>
-            <h2 :class="{'line-through': taskStatus, 'text-gray-500': onProcess.is}" class="card-title text-sm wrap-anywhere line-clamp-6">{{task!.detail }}</h2>
+            <h2 :class="{'text-gray-500': onProcess.is || taskStatus}" class="card-title text-sm wrap-anywhere line-clamp-6">{{task!.detail }}</h2>
         </div>
         <div class="card-action flex justify-end m-2">
             <input v-model="taskStatus" class="checkbox checkbox-sm" :disabled="onProcess.is" name="isDone" type="checkbox">
@@ -48,23 +48,26 @@ watch(taskStatus, async (isDone) => {
             }
         });
     } catch (err) {
-        alert('Set Status Failed');
+        tasks.data[index].status = !isDone ? 'DONE' : 'DOING';
+        Toast.fire({
+            icon: 'error',
+            title: 'failed to set status',
+            timer: 3000
+        })
     }
 });
 
 async function deleteTask(id: number) {
     Swal.fire({
-        title: "Are you sure?",
+        title: "Delete task ?",
         text: "You won't be able to revert this!",
-        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
         confirmButtonText: "Yes, delete it!",
         theme: "dark",
         customClass: {
-            popup: "!bg-base-200"
-        }
+            popup: "!bg-base-200 !w-80",
+        },
+        reverseButtons: true
     }).then(async (result) => {
         if (result.isConfirmed) {
             onProcess.is = true;
