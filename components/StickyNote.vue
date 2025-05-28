@@ -8,8 +8,7 @@
                     <button class="btn btn-xs btn-ghost join-item" :disabled="onProcess.is" @click="deleteTask(task!.id)">X</button>
                 </div>
             </div>
-            <h2 :class="taskStatus ? 'line-through' : ''" class="card-title text-sm wrap-anywhere line-clamp-6">{{
-                task!.detail }}</h2>
+            <h2 :class="{'line-through': taskStatus, 'text-gray-500': onProcess.is}" class="card-title text-sm wrap-anywhere line-clamp-6">{{task!.detail }}</h2>
         </div>
         <div class="card-action flex justify-end m-2">
             <input v-model="taskStatus" class="checkbox checkbox-sm" :disabled="onProcess.is" name="isDone" type="checkbox">
@@ -54,8 +53,6 @@ watch(taskStatus, async (isDone) => {
 });
 
 async function deleteTask(id: number) {
-    onProcess.is = true;
-    alert(onProcess.is);
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -70,25 +67,34 @@ async function deleteTask(id: number) {
         }
     }).then(async (result) => {
         if (result.isConfirmed) {
+            onProcess.is = true;
             Toast.fire({
                 icon: "info",
                 title: "deleting task"
             });
-            await $fetch('/api/tasks/' + id, {
-                method: 'delete'
-            });
-            tasks.data = tasks.data.filter((task: Task) => {
-                return task.id !== id
-            });
-            Toast.fire({
-                icon: "success",
-                title: "deleted succesfully",
-                timer: 3000
-            });
+            try {
+                await $fetch('/api/tasks/' + id, {
+                    method: 'delete'
+                });
+                tasks.data = tasks.data.filter((task: Task) => {
+                    return task.id !== id
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "deleted succesfully",
+                    timer: 3000
+                });
+            } catch {
+                Toast.fire({
+                    icon: "error",
+                    title: "failed to deletion",
+                    timer: 3000
+                });
+            } finally {
+                onProcess.is = false;
+            }
         }
-        onProcess.is = false;
     });
-
 }
 
 function openModal() {

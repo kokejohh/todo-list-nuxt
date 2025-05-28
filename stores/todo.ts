@@ -5,6 +5,7 @@ const onProcessStore = defineStore('onProcess', () => {
 
     return { is }
 });
+
 const tasksStore = defineStore('task', () => {
     const data = ref<Task[]>([]);
 
