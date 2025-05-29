@@ -6,6 +6,7 @@
                 <input v-model="text" @keyup.enter="addTask" :disabled="onProcess.is" type="text"
                     class="input w-full join-item" placeholder="What task you have to do ?" />
                 <button class="btn btn-primary join-item" :disabled="onProcess.is" @click="addTask">Create</button>
+                <button class="btn btn-secondary join-item" :disabled="onProcess.is" @click="saveTasks">Save</button>
             </div>
         </fieldset>
     </ClientOnly>
@@ -44,21 +45,21 @@ watch(() => tasks, () =>
 
 const slottedItems = computed(() => {
     const items = utils.toSlottedItems(tasks.data, 'order', slotItemMap.value);
-    debounceSlottedItems(items);
+    // debounceSlottedItems(items);
     return items
 });
 
-const debounceSlottedItems = debounce((items) => {
-    items.forEach((item) => {
-        $fetch('/api/tasks', {
-            method: 'patch',
-            body: {
-                id: item.item?.id,
-                order: parseInt(item.slotId)
-            },
-        });
-    });
-}, 1000);
+// const debounceSlottedItems = debounce((items) => {
+//     items.forEach((item) => {
+//         $fetch('/api/tasks', {
+//             method: 'patch',
+//             body: {
+//                 id: item.item?.id,
+//                 order: parseInt(item.slotId)
+//             },
+//         });
+//     });
+// }, 1000);
 
 onMounted(async () => {
     onProcess.is = true;
@@ -111,7 +112,7 @@ async function addTask() {
     Toast.fire({
         icon: 'info',
         title: 'creating task'
-    })
+    });
     try {
         const newTask = await $fetch('/api/tasks', {
             method: 'post',
@@ -141,4 +142,39 @@ async function addTask() {
         onProcess.is = false;
     }
 }
+
+async function saveTasks() {
+    onProcess.is = true;
+    Toast.fire({
+        icon: 'info',
+        title: 'saving'
+    });
+
+    try {
+        await Promise.all(slottedItems.value.map((item) => {
+            return $fetch('/api/tasks', {
+                method: 'patch',
+                body: {
+                    id: item.item?.id,
+                    order: parseInt(item.slotId)
+                },
+            });
+        }));
+
+        Toast.fire({
+            icon: 'success',
+            title: 'saved successfully',
+            timer: 3000
+        });
+    } catch (err) {
+        Toast.fire({
+            icon: 'error',
+            title: 'failed to save',
+            timer: 3000
+        });
+    } finally {
+        onProcess.is = false;
+    }
+}
+
 </script>
